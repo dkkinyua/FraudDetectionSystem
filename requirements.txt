@@ -1,0 +1,7 @@
+dotenv==0.9.9
+Faker==37.5.3
+kafka-python==2.2.15
+py4j==0.10.9.7
+pyspark==3.5.1
+python-dotenv==1.1.1
+tzdata==2025.2
