@@ -3,6 +3,8 @@ import json
 import random
 import uuid
 import socket
+import time
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from faker import Faker
 from kafka import KafkaProducer
@@ -31,9 +33,7 @@ producer = KafkaProducer(
 
 Faker.seed(10)
 random.seed(10)
-NUM_USERS = 500
-NUM_TRANSACTIONS = 2500
-FRAUD_PCT = 0.08 
+FRAUD_PCT = 0.1
 hostname = str.encode(socket.gethostname())
 
 # kafka success and error messages
@@ -44,27 +44,25 @@ def on_error(e):
     print(f"An error has occurred: {e}")
 
 def generate_users():
-    users = []
-    for _ in range(NUM_USERS):
-        first_name = faker.first_name()
-        last_name = faker.last_name()
-        email = faker.email()
-        location = faker.country()
-        user_id = str(uuid.uuid4())
-        users.append({
-            'user_id': user_id,
-            'first_name': first_name,
-            'last_name': last_name,
-            'full_name': first_name + ' ' + last_name,
-            'email': email,
-            'location': location
-        })
-    
-    return users
+    first_name = faker.first_name()
+    last_name = faker.last_name()
+    email = faker.email()
+    location = faker.country()
+    user_id = str(uuid.uuid4())
+    user = {
+        'user_id': user_id,
+        'first_name': first_name,
+        'last_name': last_name,
+        'full_name': first_name + ' ' + last_name,
+        'email': email,
+        'location': location
+    }
+
+    return user
 
 def generate_transaction_data(user, is_fraud=False):
     transaction_id = str(uuid.uuid4())
-    timestamp = faker.date_time_between(start_date='-1d', end_date='now')
+    timestamp = datetime.now(timezone.utc).isoformat()
     base_location = user['location'] # normal location for this user
 
     # logic if the transaction is fraudelent, if not, the else block executes
@@ -85,7 +83,7 @@ def generate_transaction_data(user, is_fraud=False):
     return ({
         'user_id': user['user_id'],
         'transaction_id': transaction_id,
-        'timestamp': timestamp.isoformat(),
+        'timestamp': timestamp,
         'first_name': user['first_name'],
         'last_name': user['last_name'],
         'full_name': user['full_name'],
@@ -98,19 +96,20 @@ def generate_transaction_data(user, is_fraud=False):
     })
 
 def stream_transactions():
-    users = generate_users()
-    for _ in range(NUM_TRANSACTIONS):
-        user = random.choice(users)
-        is_fraud = random.random() < FRAUD_PCT
-        tx = generate_transaction_data(user, is_fraud)
-        # send data to kafka topic
-        res = producer.send(os.getenv("TOPIC"), key=hostname, value=tx)
-        res.add_callback(on_success)
-        res.add_errback(on_error)
+    user = generate_users()
+    # Determine if fraudulent
+    is_fraud_flag = random.random() < FRAUD_PCT
+    tx = generate_transaction_data(user, is_fraud_flag)
+    res = producer.send(os.getenv("TOPIC"), key=hostname, value=tx)
+    res.add_callback(on_success)
+    res.add_errback(on_error)
+
 
 if __name__ == '__main__':
     try:
-        stream_transactions()
+        while True:
+            stream_transactions()
+            time.sleep(1)
     finally:
         print("Flushing all pending messages to topic...")
         producer.flush()
