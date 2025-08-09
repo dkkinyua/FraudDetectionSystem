@@ -10,24 +10,17 @@ load_dotenv()
 Steps:
 Set up KafkaConsumer
 Set up SparkSession
-Set up transform_data (contains transactional data):
+Set up transform_data (contains all transactions):
     - Define the schema
-        - The data that we want is inside the value dictionary as so: value.payload 
-        - So define first schema, payload schema
-        - Second schema is a derivation from value, taking in the payload schema
+        - The data that we want is inside the value dictionary as so: value
+        - So define schema
     - Define df using readStream, read data from Kafka topic
-    - Parse data into JSON from the value['payload'] dictionary
+    - Parse data into JSON from the value dictionary
     - Run transformations like changing timestamp into a datetime
-Set up transform_fraud_data (for counterchecking fraudulent transactions):
-    - Define schema, but I only need transaction_id and is_fraud flag
-    - Parse into JSON
-    - Return new dataframe.
 Set up writing helper function, write_as_batch:
     - Write batches of data into psql database using write.jdbc()
-Set up write_to_db for both tables:
-    There are two tables, transactions and fraud_transactions.
-    Transactions holds all data without the is_fraud flag for downstream cases e.g. building ML models for prediction
-    Fraud_transactions holds the fraudulent data with the is_fraud data for confirmation and cross-checking
+Set up write_to_db:
+    shop.transactions holds the fraudulent data without the is_fraud data for downstream use cases
     - Write to db using writeStream() and forEachBatch(write_as_batch)
     - This is where we use the helper function
 '''
