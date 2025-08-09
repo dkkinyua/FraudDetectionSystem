@@ -8,6 +8,7 @@ __pycache__/
 
 # test notebook
 test.ipynb
+consumer_test.py
 
 # Distribution / packaging
 .Python
