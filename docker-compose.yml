@@ -1,0 +1,31 @@
+services:
+    producer:
+        build: .
+        command: python3 scripts/producer.py
+        environment:
+            - BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS}
+            - USERNAME=${USERNAME}
+            - PASSWORD=${PASSWORD}
+            - TOPIC=${TOPIC}
+
+    transaction_consumer:
+        build: .
+        command: python3 scripts/transaction_consumer.py
+        environment:
+            - BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS}
+            - USERNAME=${USERNAME}
+            - PASSWORD=${PASSWORD}
+            - DB_URL=${DB_URL}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_USER=${DB_USER}
+
+    fraud_consumer:
+        build: .
+        command: python3 scripts/fraud_consumer.py
+        environment:
+            - BOOTSTRAP_SERVERS=${BOOTSTRAP_SERVERS}
+            - USERNAME=${USERNAME}
+            - PASSWORD=${PASSWORD}
+            - DB_URL=${DB_URL}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_USER=${DB_USER}
