@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_json
-from pyspark.sql.types import StringType, DoubleType, StructType, IntegerType
+from pyspark.sql.types import StringType, DoubleType, StructType, IntegerType, StructField
 
 load_dotenv()
 
@@ -37,18 +37,21 @@ spark = SparkSession.builder \
                     .getOrCreate()
 
 def transform_data():
-    schema = StructType() \
-                    .add('user_id', StringType()) \
-                    .add('transaction_id', StringType()) \
-                    .add('timestamp', StringType()) \
-                    .add('first_name', StringType()) \
-                    .add('last_name', StringType()) \
-                    .add('full_name', StringType()) \
-                    .add('email', StringType()) \
-                    .add('location', StringType()) \
-                    .add('transaction_location', StringType()) \
-                    .add('amount', DoubleType()) \
-                    .add('device', StringType()) 
+    schema = StructType([
+        StructField("user_id", StringType()),
+        StructField("transaction_id", StringType()),
+        StructField("timestamp", StringType()), 
+        StructField("first_name", StringType()),
+        StructField("last_name", StringType()),
+        StructField("full_name", StringType()),
+        StructField("email", StringType()),
+        StructField("location", StringType()),
+        StructField("transaction_location", StringType()),
+        StructField("amount", DoubleType()),
+        StructField("device", StringType()),
+        StructField("is_fraud", IntegerType())
+    ])
+ 
                         
     df = spark.readStream \
               .format('kafka') \
@@ -81,14 +84,15 @@ def transform_data():
         'device',
         col('timestamp').cast('timestamp')
         )
-
     return new_df
 
 def write_as_batch(batch_df, epoch_id):
     properties = {
         "user": os.getenv("DB_USER"),
         "password": os.getenv("DB_PASSWORD"),
-        "driver": "org.postgresql.Driver"
+        "driver": "org.postgresql.Driver",
+        "stringtype": "unspecified",
+        "ApplicationName": "SparkFraudConsumer"
     }
 
     try:
