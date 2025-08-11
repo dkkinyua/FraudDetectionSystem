@@ -29,3 +29,9 @@ services:
             - DB_URL=${DB_URL}
             - DB_PASSWORD=${DB_PASSWORD}
             - DB_USER=${DB_USER}
+    
+    trainer:
+        build: .
+        command: scripts/model.py
+        environment:
+            - DB_URL=${DB_URL}
