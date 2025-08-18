@@ -4,14 +4,9 @@ import pandas as pd
 from dotenv import load_dotenv
 from sklearn.ensemble import IsolationForest
 from sqlalchemy import create_engine
-from pydantic import BaseModel
 
 load_dotenv()
 
-def PredictionRequest(BaseModel):
-    amount: float
-    device_freq: int
-    location_change: int
 '''
 1. Read data from Transactions sql table
 2. Since device, location and transactional_location are not numeric as they are categorical data, we need to encode them to numerical data
@@ -43,7 +38,7 @@ def train_model():
 
         path = "jobs/isolation_forest.pkl"
         if os.path.exists(path):
-            print(f"⚠ Model already exists at {path}. Overwriting...")
+            print(f"Model already exists at {path}. Overwriting...")
         else:
             joblib.dump(iso_forest, path)
         print(f"Job loaded into {path} successfully.")
