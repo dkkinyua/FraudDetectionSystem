@@ -65,6 +65,8 @@ This will run on `localhost:8501` and will show the model's performance.
 
 ## Dashboards.
 
+To access the Grafana dashboard, please follow this [link](https://deecodes.grafana.net/public-dashboards/ac5cf512ae80435c8bdb1adad4d1a27c)
+
 ![Grafana dashboard](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/dk3ea5t3r5wcg3yux21i.png)
 
 
