@@ -32,6 +32,6 @@ services:
     
     trainer:
         build: .
-        command: scripts/model.py
+        command: python3 scripts/model.py
         environment:
             - DB_URL=${DB_URL}
