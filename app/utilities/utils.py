@@ -7,13 +7,21 @@ load_dotenv()
 IPINFO_API_KEY = os.getenv("IPINFO_API_KEY")
 
 # get user ip address and country
-def get_ip():
+# Update get_ip to accept the request
+def get_ip(request):
+    # Get client IP from request headers
+    # Render, in prod, passes the real IP in X-Forwarded-For
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host)
+    
+    if "," in client_ip:
+        client_ip = client_ip.split(",")[0].strip()
+    
     handler = ipinfo.HandlerLite(access_token=IPINFO_API_KEY)
-    details = handler.getDetails()
-
+    details = handler.getDetails(client_ip)
+    
     return {
         "ip_address": details.ip,
-        "country": details.country
+        "country": details.country_name
     }
 
 # get device type
