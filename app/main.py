@@ -145,7 +145,7 @@ async def demo_page():
 async def predict(request: Request, transaction: Transaction):
     # get device, ip and country
     device = get_device_type(request)
-    ip_data = get_ip()
+    ip_data = get_ip(request)
 
     df = pd.DataFrame([transaction.model_dump()])
 
