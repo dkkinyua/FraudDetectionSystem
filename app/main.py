@@ -36,7 +36,7 @@ class UserCreate(BaseModel):
 
 class Transaction(BaseModel):
     user_id: str
-    amount: int
+    amount: float  # Changed to float to accept decimal amounts
 
 @app.post("/users/create")
 async def create_user(user: UserCreate):
@@ -78,7 +78,7 @@ async def demo_page():
                     <div>
                         <label class="block text-sm font-medium mb-2">Home Country</label>
                         <select id="country" class="w-full border rounded p-2">
-<option value="">Select your country</option>
+                            <option value="">Select your country</option>
                             <option value="Kenya">Kenya</option>
                             <option value="United States">United States</option>
                             <option value="United Kingdom">United Kingdom</option>
@@ -93,79 +93,6 @@ async def demo_page():
                             <option value="China">China</option>
                             <option value="Germany">Germany</option>
                             <option value="France">France</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="Mexico">Mexico</option>
-                            <option value="Japan">Japan</option>
-                            <option value="South Korea">South Korea</option>
-                            <option value="Singapore">Singapore</option>
-                            <option value="Malaysia">Malaysia</option>
-                            <option value="Thailand">Thailand</option>
-                            <option value="Indonesia">Indonesia</option>
-                            <option value="Philippines">Philippines</option>
-                            <option value="Vietnam">Vietnam</option>
-                            <option value="Egypt">Egypt</option>
-                            <option value="Morocco">Morocco</option>
-                            <option value="Algeria">Algeria</option>
-                            <option value="Tunisia">Tunisia</option>
-                            <option value="Ethiopia">Ethiopia</option>
-                            <option value="Rwanda">Rwanda</option>
-                            <option value="Zambia">Zambia</option>
-                            <option value="Zimbabwe">Zimbabwe</option>
-                            <option value="Botswana">Botswana</option>
-                            <option value="Namibia">Namibia</option>
-                            <option value="Mauritius">Mauritius</option>
-                            <option value="Seychelles">Seychelles</option>
-                            <option value="Spain">Spain</option>
-                            <option value="Italy">Italy</option>
-                            <option value="Portugal">Portugal</option>
-                            <option value="Netherlands">Netherlands</option>
-                            <option value="Belgium">Belgium</option>
-                            <option value="Switzerland">Switzerland</option>
-                            <option value="Austria">Austria</option>
-                            <option value="Sweden">Sweden</option>
-                            <option value="Norway">Norway</option>
-                            <option value="Denmark">Denmark</option>
-                            <option value="Finland">Finland</option>
-                            <option value="Poland">Poland</option>
-                            <option value="Czech Republic">Czech Republic</option>
-                            <option value="Hungary">Hungary</option>
-                            <option value="Romania">Romania</option>
-                            <option value="Greece">Greece</option>
-                            <option value="Turkey">Turkey</option>
-                            <option value="Israel">Israel</option>
-                            <option value="Saudi Arabia">Saudi Arabia</option>
-                            <option value="United Arab Emirates">United Arab Emirates</option>
-                            <option value="Qatar">Qatar</option>
-                            <option value="Kuwait">Kuwait</option>
-                            <option value="Bahrain">Bahrain</option>
-                            <option value="Oman">Oman</option>
-                            <option value="Argentina">Argentina</option>
-                            <option value="Chile">Chile</option>
-                            <option value="Colombia">Colombia</option>
-                            <option value="Peru">Peru</option>
-                            <option value="Venezuela">Venezuela</option>
-                            <option value="Ecuador">Ecuador</option>
-                            <option value="Bolivia">Bolivia</option>
-                            <option value="Paraguay">Paraguay</option>
-                            <option value="Uruguay">Uruguay</option>
-                            <option value="Costa Rica">Costa Rica</option>
-                            <option value="Panama">Panama</option>
-                            <option value="Jamaica">Jamaica</option>
-                            <option value="Trinidad and Tobago">Trinidad and Tobago</option>
-                            <option value="Barbados">Barbados</option>
-                            <option value="Bahamas">Bahamas</option>
-                            <option value="New Zealand">New Zealand</option>
-                            <option value="Fiji">Fiji</option>
-                            <option value="Papua New Guinea">Papua New Guinea</option>
-                            <option value="Pakistan">Pakistan</option>
-                            <option value="Bangladesh">Bangladesh</option>
-                            <option value="Sri Lanka">Sri Lanka</option>
-                            <option value="Nepal">Nepal</option>
-                            <option value="Afghanistan">Afghanistan</option>
-                            <option value="Myanmar">Myanmar</option>
-                            <option value="Cambodia">Cambodia</option>
-                            <option value="Laos">Laos</option>
-                            <option value="Mongolia">Mongolia</option>
                         </select>
                     </div>
                 </div>
@@ -186,13 +113,11 @@ async def demo_page():
                                class="w-full border rounded p-2" readonly>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Transaction Amount</label>
-                        <select id="amount" class="w-full border rounded p-2">
-                            <option value="10">$10 - Micro</option>
-                            <option value="100">$100 - Standard</option>
-                            <option value="1000">$1,000 - High value</option>
-                            <option value="10000">$10,000 - Enterprise</option>
-                        </select>
+                        <label class="block text-sm font-medium mb-2">Transaction Amount ($)</label>
+                        <input type="number" id="amount" placeholder="Enter amount (e.g., 250.50)" 
+                               min="0" step="0.01" value="100"
+                               class="w-full border rounded p-2">
+                        <p class="text-xs text-gray-500 mt-1">Enter any amount you want to test</p>
                     </div>
                 </div>
                 <button onclick="testTransaction()" 
@@ -214,7 +139,7 @@ async def demo_page():
                     <p class="mb-2 text-gray-400">2. Check transaction:</p>
                     <pre class="bg-gray-800 p-3 rounded overflow-x-auto">curl -X POST https://your-api.com/predict \\
   -H "Content-Type: application/json" \\
-  -d '{"user_id": "abc-123", "amount": 100}'</pre>
+  -d '{"user_id": "abc-123", "amount": 250.50}'</pre>
                 </div>
             </div>
         </div>
@@ -226,6 +151,11 @@ async def demo_page():
                 const email = document.getElementById('email').value;
                 const country = document.getElementById('country').value;
                 const resultDiv = document.getElementById('user-result');
+                
+                if (!country) {
+                    resultDiv.innerHTML = '<p class="text-red-600">Please select a country!</p>';
+                    return;
+                }
                 
                 resultDiv.innerHTML = '<p class="text-gray-500">Creating user...</p>';
                 
@@ -256,11 +186,16 @@ async def demo_page():
             
             async function testTransaction() {
                 const userId = document.getElementById('user-id').value;
-                const amount = document.getElementById('amount').value;
+                const amount = parseFloat(document.getElementById('amount').value);
                 const resultDiv = document.getElementById('fraud-result');
                 
                 if (!userId) {
                     resultDiv.innerHTML = '<p class="text-red-600">Please create a user first!</p>';
+                    return;
+                }
+                
+                if (!amount || amount <= 0) {
+                    resultDiv.innerHTML = '<p class="text-red-600">Please enter a valid amount!</p>';
                     return;
                 }
                 
@@ -270,7 +205,7 @@ async def demo_page():
                     const response = await fetch('/predict', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({user_id: userId, amount: parseInt(amount)})
+                        body: JSON.stringify({user_id: userId, amount: amount})
                     });
                     
                     const data = await response.json();
@@ -280,14 +215,15 @@ async def demo_page():
                     const bgColor = isFraud ? 'bg-red-50' : fraudProb > 50 ? 'bg-yellow-50' : 'bg-green-50';
                     const borderColor = isFraud ? 'border-red-200' : fraudProb > 50 ? 'border-yellow-200' : 'border-green-200';
                     const textColor = isFraud ? 'text-red-800' : fraudProb > 50 ? 'text-yellow-800' : 'text-green-800';
-                    const icon = isFraud ? '⚠️' : fraudProb > 50 ? '⚡' : '✅';
+                    const icon = isFraud ? '' : fraudProb > 50 ? '' : '';
                     const status = isFraud ? 'FRAUD DETECTED' : fraudProb > 50 ? 'REVIEW NEEDED' : 'APPROVED';
                     
                     resultDiv.innerHTML = `
                         <div class="${bgColor} border ${borderColor} rounded p-4">
                             <p class="${textColor} font-bold text-lg">${icon} ${status}</p>
-                            <p class="text-sm mt-2">Fraud Probability: ${fraudProb}%</p>
-                            <p class="text-sm">User Home: ${data.user_home_country}</p>
+                            <p class="text-sm mt-2">Amount: $${amount.toFixed(2)}</p>
+                            <p class="text-sm">Fraud Probability: ${fraudProb}%</p>
+                            <p class="text-sm">Original location: ${data.user_home_country}</p>
                             <p class="text-sm">Transaction From: ${data.transaction_country}</p>
                             <p class="text-sm">Location Mismatch: ${data.location_mismatch ? 'Yes' : 'No'}</p>
                             <details class="mt-3">
@@ -311,6 +247,10 @@ async def predict(request: Request, transaction: Transaction):
     user = USERS.get(transaction.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Validate amount
+    if transaction.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be greater than 0")
     
     # get device, ip and country
     device = get_device_type(request)
@@ -342,9 +282,8 @@ async def predict(request: Request, transaction: Transaction):
     return {
         "fraud_probability": prob,
         "is_fraud": pred,
+        "amount": transaction.amount,
         "user_home_country": home_location,
         "transaction_country": txn_location,
         "location_mismatch": location_change == 1
     }
-
-
